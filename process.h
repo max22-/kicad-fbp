@@ -22,14 +22,7 @@ struct Process {
 
 typedef unordered_map<string, Process> Processes;   // key, value : process class name, process data
 
-string findClassFromInstance(string instance, unordered_map<string, Process>& classes)
-{
-    for(auto kv: classes) {
-        auto instances = kv.second.instances;
-        if(instances.find(instance) != instances.end())
-            return kv.first;
-    }
-    return "";
-}
+string findClassFromInstance(string instance, const Processes& classes);
+PortType getPortType(string instance, string portNumber, Processes& classes);
 
 #endif

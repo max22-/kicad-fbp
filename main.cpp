@@ -4,9 +4,12 @@
 #include "tinyxml2/tinyxml2.h"
 
 #include "process.h"
+#include "connection.h"
 
 using namespace tinyxml2;
 using namespace std;
+
+Processes processes;
 
 int main(int argc, char *argv[]) {
 	if(argc != 2) {
@@ -70,15 +73,28 @@ int main(int argc, char *argv[]) {
 		cout << "****" << endl << endl;
 	}
 
+	ConnectionListBuilder connectionListBuilder;
+	connectionListBuilder.setProcessesList(processes);
+
 	XMLElement* nets = doc.FirstChildElement()->FirstChildElement("nets");
 	for(XMLElement* net = nets->FirstChildElement("net"); net != nullptr; net = net->NextSiblingElement()) {
-		cout << "net " << net->Attribute("code") << endl;
+		string netName = net->Attribute("code");
 		for(XMLElement* node = net->FirstChildElement("node"); node != nullptr; node = node->NextSiblingElement()) {
 			string instance = node->Attribute("ref");
 			string pin = node->Attribute("pin");
 			string _class = findClassFromInstance(instance, processes);
-			cout << "    " << instance << "." << processes[_class].ports[pin].name << endl;
+			connectionListBuilder.addNetData(netName, instance, pin);
 		}
+	}
+
+
+	vector<Connection> connections = connectionListBuilder.getList();
+	cout << "Number of connections : " << connections.size() << endl;
+	for(auto connection: connections) {
+		cout << connection.outputPort.instance << "." << connection.outputPort.name;
+		cout << "\t->\t";
+		cout << connection.inputPort.instance << "." << connection.inputPort.name;
+		cout << endl;
 	}
 	
 }
