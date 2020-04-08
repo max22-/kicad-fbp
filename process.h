@@ -17,7 +17,7 @@ struct Process {
     std::unordered_map<std::string, Port> ports;    // key, value : port number (as string), port
 };
 
-
+typedef std::unordered_map<std::string, Process> Processes;   // key, value : process class name, process data
 
 std::string findClassFromInstance(std::string instance, std::unordered_map<std::string, Process>& classes)
 {

@@ -18,7 +18,7 @@ int main(int argc, char *argv[]) {
 	XMLDocument doc;
 	doc.LoadFile(fileName);
 
-	unordered_map<string, Process> processes;
+	Processes processes;
 	
 	XMLElement* components = doc.FirstChildElement()->FirstChildElement("components");
 	for(XMLElement* component = components->FirstChildElement("comp"); component != nullptr; component = component->NextSiblingElement()) {
