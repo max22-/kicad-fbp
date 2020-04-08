@@ -5,21 +5,24 @@
 #include <unordered_set>
 #include <vector>
 
+using namespace std;
+
 enum class PortType {INPUT, OUTPUT};
 
 struct Port {
-    std::string name;
+    string name;
     PortType type;
-};
+};  // example : Port { "in", PortType::INPUT }
 
 struct Process {
-    std::unordered_set<std::string> instances;
-    std::unordered_map<std::string, Port> ports;    // key, value : port number (as string), port
-};
+    unordered_set<string> instances;
+    unordered_map<string, Port> ports;    // key, value : port number (as string), port
+};  //  example : Process { instances = {"process1", "process2"}, ports = {port1, port2}}
+    // this struct doesn't provide the class name. It is provided by the unordered_map key where the port is stored.
 
-typedef std::unordered_map<std::string, Process> Processes;   // key, value : process class name, process data
+typedef unordered_map<string, Process> Processes;   // key, value : process class name, process data
 
-std::string findClassFromInstance(std::string instance, std::unordered_map<std::string, Process>& classes)
+string findClassFromInstance(string instance, unordered_map<string, Process>& classes)
 {
     for(auto kv: classes) {
         auto instances = kv.second.instances;
