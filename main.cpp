@@ -1,15 +1,11 @@
 #include <iostream>
 #include <unordered_map>
 #include <string>
+#include <vector>
 #include "tinyxml2/tinyxml2.h"
-
-#include "process.h"
-#include "connection.h"
 
 using namespace tinyxml2;
 using namespace std;
-
-Processes processes;
 
 int main(int argc, char *argv[]) {
 	if(argc != 2) {
@@ -21,80 +17,83 @@ int main(int argc, char *argv[]) {
 	XMLDocument doc;
 	doc.LoadFile(fileName);
 
-	Processes processes;
+	typedef unordered_map<string, string> Components;
+	typedef unordered_map<string, pair<string, string>> Pins;
+	typedef unordered_map<string, Pins> Parts;
+	typedef pair<string, string> Node;
+	typedef unordered_map<string, vector<Node>> Nets;
 	
-	XMLElement* components = doc.FirstChildElement()->FirstChildElement("components");
-	for(XMLElement* component = components->FirstChildElement("comp"); component != nullptr; component = component->NextSiblingElement()) {
-		string instanceName = component->Attribute("ref");
-		string className = component->FirstChildElement("libsource")->Attribute("part");
-		Process process;
-		
-		processes[className].instances.insert(instanceName);
-	}
 
-	XMLElement* libparts = doc.FirstChildElement()->FirstChildElement("libparts");
-	for(XMLElement* libpart = libparts->FirstChildElement("libpart"); libpart != nullptr; libpart = libpart->NextSiblingElement()) {
-		string className = libpart->Attribute("part");
-		XMLElement* pins = libpart->FirstChildElement("pins");
-		for(XMLElement* pin = pins->FirstChildElement("pin"); pin != nullptr; pin = pin->NextSiblingElement()) {
-			string num = pin->Attribute("num");
-			string name = pin->Attribute("name");
-			string type = pin->Attribute("type");
-			processes[className].ports[num].name = name;
-			if(type == "input")
-				processes[className].ports[num].type = PortType::INPUT;
-			else if(type == "output")
-				processes[className].ports[num].type = PortType::OUTPUT;
-			else {
-				cerr << "Unsupported pin type \"" << type << "\" in component " << className << endl;
+	Parts parts;
+	Components components;
+	Nets nets;
+
+	XMLElement* xmlParts = doc.FirstChildElement()->FirstChildElement("libparts");
+	for(XMLElement* xmlPart = xmlParts->FirstChildElement("libpart"); xmlPart != nullptr; xmlPart = xmlPart->NextSiblingElement()) {
+		string partName = xmlPart->Attribute("part");
+		Pins pins;
+		XMLElement* xmlPins = xmlPart->FirstChildElement("pins");
+		for(XMLElement* xmlPin = xmlPins->FirstChildElement("pin"); xmlPin != nullptr; xmlPin = xmlPin->NextSiblingElement()) {
+			string pinNumber = xmlPin->Attribute("num");
+			string pinName = xmlPin->Attribute("name");
+			string pinType = xmlPin->Attribute("type");
+			if(pinType != "input" && pinType != "output") {
+				cerr << "Unsupported pin type \"" << pinType << "\" in part " << partName << endl;
 				return EXIT_FAILURE;
 			}
+			pins[pinNumber] = make_pair(pinName, pinType);
 		}
+		parts[partName] = pins;
+	}
+	
+	XMLElement* xmlComponents = doc.FirstChildElement()->FirstChildElement("components");
+	for(XMLElement* xmlComponent = xmlComponents->FirstChildElement("comp"); xmlComponent != nullptr; xmlComponent = xmlComponent->NextSiblingElement()) {
+		string componentName = xmlComponent->Attribute("ref");
+		string partName = xmlComponent->FirstChildElement("libsource")->Attribute("part");
+		components[componentName] = partName;
 	}
 
-	for(auto kv : processes) {
+	XMLElement* xmlNets = doc.FirstChildElement()->FirstChildElement("nets");
+	for(XMLElement* xmlNet = xmlNets->FirstChildElement("net"); xmlNet != nullptr; xmlNet = xmlNet->NextSiblingElement()) {
+		string netName = xmlNet->Attribute("name");
+		vector<Node> nodes;
+		for(XMLElement* xmlNode = xmlNet->FirstChildElement("node"); xmlNode != nullptr; xmlNode = xmlNode->NextSiblingElement()) {
+			string componentName = xmlNode->Attribute("ref");
+			string pinNumber = xmlNode->Attribute("pin");
+			nodes.push_back(make_pair(componentName, pinNumber));
+		}
+		nets[netName] = nodes;
+	}
+
+	for(auto kv : components)
+	{
+		string componentName = kv.first;
+		string partName = kv.second;
 		cout << "****" << endl;
-		cout << kv.first << endl;
-		cout << "instances :" << endl;
-		for(auto kv2: kv.second.instances)
-			cout << "    " << kv2 << endl;
-		cout << "ports :" << endl;
-		for(auto kv2 : kv.second.ports) {
-			cout << "    " << kv2.first << " " << kv2.second.name;
-			if(kv2.second.type == PortType::INPUT)
-				cout << " (input)";
-			else if(kv2.second.type == PortType::OUTPUT)
-				cout << " (output)";
-			else
-				cout << " (unknown port type)";
-			cout << endl;
-			
-		}
-		cout << "****" << endl << endl;
-	}
-
-	ConnectionListBuilder connectionListBuilder;
-	connectionListBuilder.setProcessesList(processes);
-
-	XMLElement* nets = doc.FirstChildElement()->FirstChildElement("nets");
-	for(XMLElement* net = nets->FirstChildElement("net"); net != nullptr; net = net->NextSiblingElement()) {
-		string netName = net->Attribute("code");
-		for(XMLElement* node = net->FirstChildElement("node"); node != nullptr; node = node->NextSiblingElement()) {
-			string instance = node->Attribute("ref");
-			string pin = node->Attribute("pin");
-			string _class = findClassFromInstance(instance, processes);
-			connectionListBuilder.addNetData(netName, instance, pin);
+		cout << componentName << "(" << partName << ")" << endl;
+		for(auto kv2: parts[partName])
+		{
+			string pinName = kv2.second.first;
+			string pinType = kv2.second.second;
+			cout << "\t" << pinName << "(" << pinType << ")" << endl;
 		}
 	}
 
+	cout << endl;
+	cout << "Nets :" << endl;
 
-	vector<Connection> connections = connectionListBuilder.getList();
-	cout << "Number of connections : " << connections.size() << endl;
-	for(auto connection: connections) {
-		cout << connection.outputPort.instance << "." << connection.outputPort.name;
-		cout << "\t->\t";
-		cout << connection.inputPort.instance << "." << connection.inputPort.name;
-		cout << endl;
+	for(auto kv : nets) {
+		string netName = kv.first;
+		vector<Node> nodes = kv.second;
+		cout << "****" << endl;
+		cout << netName << endl;
+		for(auto kv2 : nodes)
+		{
+			string componentName = kv2.first;
+			string pinNumber = kv2.second;
+			string pinName = parts[components[componentName]][pinNumber].first;
+			cout << "\t" << componentName << "." << pinName << endl;
+		}
 	}
 	
 }

@@ -1,16 +1,10 @@
 all: kicad-fbp
 
-kicad-fbp: ./tinyxml2/libtinyxml2.a main.o connection.o process.o
-	g++ main.o connection.o process.o ./tinyxml2/libtinyxml2.a -o kicad-fbp
+kicad-fbp: ./tinyxml2/libtinyxml2.a main.o
+	g++ main.o ./tinyxml2/libtinyxml2.a -o kicad-fbp
 
-main.o: main.cpp process.h
+main.o: main.cpp
 	g++ main.cpp -c -o main.o
-
-connection.o: connection.cpp connection.h process.h
-	g++ connection.cpp -c -o connection.o
-
-process.o: process.cpp process.h
-	g++ process.cpp -c -o process.o
 
 ./tinyxml2/libtinyxml2.a: 
 	git clone https://github.com/leethomason/tinyxml2
