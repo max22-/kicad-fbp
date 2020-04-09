@@ -20,7 +20,7 @@ int main(int argc, char *argv[]) {
 	typedef unordered_map<string, string> Components;
 	typedef unordered_map<string, pair<string, string>> Pins;
 	typedef unordered_map<string, Pins> Parts;
-	typedef pair<string, string> Node;
+	typedef tuple<string, string, string> Node;
 	typedef unordered_map<string, vector<Node>> Nets;
 	
 
@@ -60,7 +60,8 @@ int main(int argc, char *argv[]) {
 		for(XMLElement* xmlNode = xmlNet->FirstChildElement("node"); xmlNode != nullptr; xmlNode = xmlNode->NextSiblingElement()) {
 			string componentName = xmlNode->Attribute("ref");
 			string pinNumber = xmlNode->Attribute("pin");
-			nodes.push_back(make_pair(componentName, pinNumber));
+			string pinType = parts[components[componentName]][pinNumber].second;
+			nodes.push_back(make_tuple(componentName, pinNumber, pinType));
 		}
 		nets[netName] = nodes;
 	}
@@ -87,12 +88,13 @@ int main(int argc, char *argv[]) {
 		vector<Node> nodes = kv.second;
 		cout << "****" << endl;
 		cout << netName << endl;
-		for(auto kv2 : nodes)
+		for(auto node : nodes)
 		{
-			string componentName = kv2.first;
-			string pinNumber = kv2.second;
+			string componentName = get<0>(node);
+			string pinNumber = get<1>(node);
+			string pinType = get<2>(node);
 			string pinName = parts[components[componentName]][pinNumber].first;
-			cout << "\t" << componentName << "." << pinName << endl;
+			cout << "\t" << componentName << "." << pinName << "(" << pinType << ")" << endl;
 		}
 	}
 	
