@@ -1,5 +1,6 @@
 #include <iostream>
 #include "parser.h"
+#include "dot.h"
 
 
 using namespace std;
@@ -12,7 +13,7 @@ int main(int argc, char *argv[]) {
 
 	auto [components, connections] = parse(argv[1]);
 
-	for(auto [component, part] : components)
+/*	for(auto [component, part] : components)
 		cout << component << "(" << part << ")" << endl;
 
 	cout << endl;
@@ -25,5 +26,8 @@ int main(int argc, char *argv[]) {
 		cout << connection.inputComponent << "." << connection.inputPin;
 		cout << endl;
 	}
+*/
+	cout << dotGraph(components, connections);
+	return EXIT_SUCCESS;
 	
 }
