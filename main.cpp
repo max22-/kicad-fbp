@@ -1,6 +1,7 @@
 #include <iostream>
 #include "parser.h"
 #include "dot.h"
+#include "fbp.h"
 
 
 using namespace std;
@@ -27,7 +28,8 @@ int main(int argc, char *argv[]) {
 		cout << endl;
 	}
 */
-	cout << dotGraph(components, connections);
+	//cout << dotGraph(components, connections);
+	cout << fbpDSL(components, connections);
 	return EXIT_SUCCESS;
 	
 }
