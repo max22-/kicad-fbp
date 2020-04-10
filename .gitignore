@@ -2,3 +2,6 @@ tinyxml2/
 kicad-fbp
 *.o
 settings.json
+*.png
+*.dot
+*.xml
