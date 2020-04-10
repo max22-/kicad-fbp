@@ -1,3 +1,4 @@
 tinyxml2/
 kicad-fbp
 *.o
+settings.json
