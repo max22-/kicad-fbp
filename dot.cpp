@@ -9,6 +9,11 @@ string dotGraph(Components components, vector<Connection> connections)
     ss << "\trankdir=LR;" << endl << endl;
 
     for(auto connection: connections) {
+        if(components[connection.outputComponent].part == "IIP")
+            ss << connection.outputComponent << " [label=\"" << components[connection.outputComponent].value << "\"];" << endl;
+    }
+
+    for(auto connection: connections) {
         ss << "\t" << connection.outputComponent << " -> " << connection.inputComponent;
         ss << "[taillabel=\"" << connection.outputPin << "\", headlabel=\"" << connection.inputPin << "\"]";
         ss << ";" << endl;

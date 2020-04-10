@@ -7,7 +7,12 @@
 
 using namespace std;
 
-typedef unordered_map<string, string> Components;
+struct ComponentData {
+    string part;
+    string value;
+};
+
+typedef unordered_map<string, ComponentData> Components;
 
 struct Pin {
     string name, type;

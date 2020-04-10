@@ -33,8 +33,10 @@ pair<Components, vector<Connection>> parse(const char* fileName)
 	XMLElement* xmlComponents = doc.FirstChildElement()->FirstChildElement("components");
 	for(XMLElement* xmlComponent = xmlComponents->FirstChildElement("comp"); xmlComponent != nullptr; xmlComponent = xmlComponent->NextSiblingElement()) {
 		string componentName = xmlComponent->Attribute("ref");
-		string partName = xmlComponent->FirstChildElement("libsource")->Attribute("part");
-		components[componentName] = partName;
+		ComponentData componentData;
+		componentData.part = xmlComponent->FirstChildElement("libsource")->Attribute("part");
+		componentData.value = xmlComponent->FirstChildElement("value")->GetText();
+		components[componentName] = componentData;
 	}
 
 	XMLElement* xmlNets = doc.FirstChildElement()->FirstChildElement("nets");
@@ -45,7 +47,7 @@ pair<Components, vector<Connection>> parse(const char* fileName)
 			Node node;
 			node.component = xmlNode->Attribute("ref");
 			node.pinNumber = xmlNode->Attribute("pin");
-			node.pinType = parts[components[node.component]][node.pinNumber].type;
+			node.pinType = parts[components[node.component].part][node.pinNumber].type;
 			nodes.push_back(node);
 		}
 		nets[netName] = nodes;
@@ -77,10 +79,10 @@ pair<Components, vector<Connection>> parse(const char* fileName)
 			Connection connection;
 			connection.outputComponent = node.component;
 			string outputComponentPinNumber = node.pinNumber;
-			connection.outputPin = parts[components[connection.outputComponent]][outputComponentPinNumber].name;
+			connection.outputPin = parts[components[connection.outputComponent].part][outputComponentPinNumber].name;
 			connection.inputComponent = inputs[0].component;
 			string inputComponentPinNumber = inputs[0].pinNumber;
-			connection.inputPin = parts[components[connection.inputComponent]][inputComponentPinNumber].name;
+			connection.inputPin = parts[components[connection.inputComponent].part][inputComponentPinNumber].name;
 			
 			connections.push_back(connection);
 		}
