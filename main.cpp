@@ -82,16 +82,15 @@ int main(int argc, char *argv[]) {
 			continue;
 		}
 		for(auto node: outputs) {
-			string outputComponent = get<0>(node);
+			Connection connection;
+			connection.outputComponent = get<0>(node);
 			string outputComponentPinNumber = get<1>(node);
-			string outputComponentPin = parts[components[outputComponent]][outputComponentPinNumber].first;
-			string inputComponent = get<0>(inputs[0]);
+			connection.outputPin = parts[components[connection.outputComponent]][outputComponentPinNumber].first;
+			connection.inputComponent = get<0>(inputs[0]);
 			string inputComponentPinNumber = get<1>(inputs[0]);
-			string inputComponentPin = parts[components[inputComponent]][inputComponentPinNumber].first;
-			connections.push_back(make_pair(
-				make_pair(outputComponent, outputComponentPin), 
-				make_pair(inputComponent, inputComponentPin)
-			));
+			connection.inputPin = parts[components[connection.inputComponent]][inputComponentPinNumber].first;
+			
+			connections.push_back(connection);
 		}
 
 	}
@@ -134,9 +133,9 @@ int main(int argc, char *argv[]) {
 
 	for(auto connection: connections)
 	{
-		cout << connection.first.first << "." << connection.first.second;
+		cout << connection.outputComponent << "." << connection.outputPin;
 		cout << " -> ";
-		cout << connection.second.first << "." << connection.second.second;
+		cout << connection.inputComponent << "." << connection.inputPin;
 		cout << endl;
 	}
 	

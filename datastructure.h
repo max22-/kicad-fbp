@@ -12,6 +12,10 @@ typedef unordered_map<string, pair<string, string>> Pins;
 typedef unordered_map<string, Pins> Parts;
 typedef tuple<string, string, string> Node;
 typedef unordered_map<string, vector<Node>> Nets;
-typedef pair<pair<string, string>, pair<string, string>> Connection;
+
+struct Connection {
+    string outputComponent, outputPin;
+    string inputComponent, inputPin;
+};
 
 #endif
