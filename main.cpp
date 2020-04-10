@@ -22,11 +22,14 @@ int main(int argc, char *argv[]) {
 	typedef unordered_map<string, Pins> Parts;
 	typedef tuple<string, string, string> Node;
 	typedef unordered_map<string, vector<Node>> Nets;
+	typedef pair<pair<string, string>, pair<string, string>> Connection;
+
 	
 
 	Parts parts;
 	Components components;
 	Nets nets;
+	vector<Connection> connections;
 
 	XMLElement* xmlParts = doc.FirstChildElement()->FirstChildElement("libparts");
 	for(XMLElement* xmlPart = xmlParts->FirstChildElement("libpart"); xmlPart != nullptr; xmlPart = xmlPart->NextSiblingElement()) {
@@ -66,6 +69,43 @@ int main(int argc, char *argv[]) {
 		nets[netName] = nodes;
 	}
 
+	for(auto net: nets) {
+		string netName = net.first;
+		vector<Node> nodes = net.second;
+		vector<Node> inputs, outputs;
+		for(auto node: nodes) {
+			if(get<2>(node) == "input")
+				inputs.push_back(node);
+			else if(get<2>(node) == "output")
+				outputs.push_back(node);
+		}
+		if(inputs.size() > 1) {
+			cerr << "Error in net \"" << netName << "\": we can't have more than 1 input in a net" << endl;
+			exit(EXIT_FAILURE);
+		}
+		if(inputs.size() == 0 && outputs.size() > 1) {
+			cerr << "Error in net \"" << netName << "\": multiple output pins connected together, with no input pin" << endl;
+			exit(EXIT_FAILURE);
+		}
+		if(inputs.size() == 0 || outputs.size() == 0) {
+			cerr << "Warning : unconnected pin in net " << netName << endl;
+			continue;
+		}
+		for(auto node: outputs) {
+			string outputComponent = get<0>(node);
+			string outputComponentPinNumber = get<1>(node);
+			string outputComponentPin = parts[components[outputComponent]][outputComponentPinNumber].first;
+			string inputComponent = get<0>(inputs[0]);
+			string inputComponentPinNumber = get<1>(inputs[0]);
+			string inputComponentPin = parts[components[inputComponent]][inputComponentPinNumber].first;
+			connections.push_back(make_pair(
+				make_pair(outputComponent, outputComponentPin), 
+				make_pair(inputComponent, inputComponentPin)
+			));
+		}
+
+	}
+
 	for(auto kv : components)
 	{
 		string componentName = kv.first;
@@ -96,6 +136,18 @@ int main(int argc, char *argv[]) {
 			string pinName = parts[components[componentName]][pinNumber].first;
 			cout << "\t" << componentName << "." << pinName << "(" << pinType << ")" << endl;
 		}
+	}
+
+
+	cout << endl;
+	cout << connections.size() << " connections :" << endl;
+
+	for(auto connection: connections)
+	{
+		cout << connection.first.first << "." << connection.first.second;
+		cout << " -> ";
+		cout << connection.second.first << "." << connection.second.second;
+		cout << endl;
 	}
 	
 }
