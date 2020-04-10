@@ -27,14 +27,15 @@ int main(int argc, char *argv[]) {
 		Pins pins;
 		XMLElement* xmlPins = xmlPart->FirstChildElement("pins");
 		for(XMLElement* xmlPin = xmlPins->FirstChildElement("pin"); xmlPin != nullptr; xmlPin = xmlPin->NextSiblingElement()) {
+			Pin pin;
 			string pinNumber = xmlPin->Attribute("num");
-			string pinName = xmlPin->Attribute("name");
-			string pinType = xmlPin->Attribute("type");
-			if(pinType != "input" && pinType != "output") {
-				cerr << "Unsupported pin type \"" << pinType << "\" in part " << partName << endl;
+			pin.name = xmlPin->Attribute("name");
+			pin.type = xmlPin->Attribute("type");
+			if(pin.type != "input" && pin.type != "output") {
+				cerr << "Unsupported pin type \"" << pin.type << "\" in part " << partName << endl;
 				return EXIT_FAILURE;
 			}
-			pins[pinNumber] = make_pair(pinName, pinType);
+			pins[pinNumber] = pin;
 		}
 		parts[partName] = pins;
 	}
@@ -51,10 +52,11 @@ int main(int argc, char *argv[]) {
 		string netName = xmlNet->Attribute("name");
 		vector<Node> nodes;
 		for(XMLElement* xmlNode = xmlNet->FirstChildElement("node"); xmlNode != nullptr; xmlNode = xmlNode->NextSiblingElement()) {
-			string componentName = xmlNode->Attribute("ref");
-			string pinNumber = xmlNode->Attribute("pin");
-			string pinType = parts[components[componentName]][pinNumber].second;
-			nodes.push_back(make_tuple(componentName, pinNumber, pinType));
+			Node node;
+			node.component = xmlNode->Attribute("ref");
+			node.pinNumber = xmlNode->Attribute("pin");
+			node.pinType = parts[components[node.component]][node.pinNumber].type;
+			nodes.push_back(node);
 		}
 		nets[netName] = nodes;
 	}
@@ -64,9 +66,9 @@ int main(int argc, char *argv[]) {
 		vector<Node> nodes = net.second;
 		vector<Node> inputs, outputs;
 		for(auto node: nodes) {
-			if(get<2>(node) == "input")
+			if(node.pinType == "input")
 				inputs.push_back(node);
-			else if(get<2>(node) == "output")
+			else if(node.pinType == "output")
 				outputs.push_back(node);
 		}
 		if(inputs.size() > 1) {
@@ -83,12 +85,12 @@ int main(int argc, char *argv[]) {
 		}
 		for(auto node: outputs) {
 			Connection connection;
-			connection.outputComponent = get<0>(node);
-			string outputComponentPinNumber = get<1>(node);
-			connection.outputPin = parts[components[connection.outputComponent]][outputComponentPinNumber].first;
-			connection.inputComponent = get<0>(inputs[0]);
-			string inputComponentPinNumber = get<1>(inputs[0]);
-			connection.inputPin = parts[components[connection.inputComponent]][inputComponentPinNumber].first;
+			connection.outputComponent = node.component;
+			string outputComponentPinNumber = node.pinNumber;
+			connection.outputPin = parts[components[connection.outputComponent]][outputComponentPinNumber].name;
+			connection.inputComponent = inputs[0].component;
+			string inputComponentPinNumber = inputs[0].pinNumber;
+			connection.inputPin = parts[components[connection.inputComponent]][inputComponentPinNumber].name;
 			
 			connections.push_back(connection);
 		}
@@ -101,12 +103,8 @@ int main(int argc, char *argv[]) {
 		string partName = kv.second;
 		cout << "****" << endl;
 		cout << componentName << "(" << partName << ")" << endl;
-		for(auto kv2: parts[partName])
-		{
-			string pinName = kv2.second.first;
-			string pinType = kv2.second.second;
-			cout << "\t" << pinName << "(" << pinType << ")" << endl;
-		}
+		for(auto pin: parts[partName])
+			cout << "\t" << pin.second.name << "(" << pin.second.type << ")" << endl;
 	}
 
 	cout << endl;
@@ -119,11 +117,8 @@ int main(int argc, char *argv[]) {
 		cout << netName << endl;
 		for(auto node : nodes)
 		{
-			string componentName = get<0>(node);
-			string pinNumber = get<1>(node);
-			string pinType = get<2>(node);
-			string pinName = parts[components[componentName]][pinNumber].first;
-			cout << "\t" << componentName << "." << pinName << "(" << pinType << ")" << endl;
+			string pinName = parts[components[node.component]][node.pinNumber].name;
+			cout << "\t" << node.component << "." << pinName << "(" << node.pinType << ")" << endl;
 		}
 	}
 

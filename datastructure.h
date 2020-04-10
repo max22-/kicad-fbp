@@ -8,9 +8,16 @@
 using namespace std;
 
 typedef unordered_map<string, string> Components;
-typedef unordered_map<string, pair<string, string>> Pins;
+
+struct Pin {
+    string name, type;
+};
+typedef unordered_map<string, Pin> Pins;
 typedef unordered_map<string, Pins> Parts;
-typedef tuple<string, string, string> Node;
+struct Node {
+    string component, pinNumber, pinType;
+};
+
 typedef unordered_map<string, vector<Node>> Nets;
 
 struct Connection {
