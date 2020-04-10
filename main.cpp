@@ -1,8 +1,7 @@
 #include <iostream>
-#include <unordered_map>
-#include <string>
-#include <vector>
+
 #include "tinyxml2/tinyxml2.h"
+#include "datastructure.h"
 
 using namespace tinyxml2;
 using namespace std;
@@ -16,15 +15,6 @@ int main(int argc, char *argv[]) {
 	const char* fileName = argv[1];
 	XMLDocument doc;
 	doc.LoadFile(fileName);
-
-	typedef unordered_map<string, string> Components;
-	typedef unordered_map<string, pair<string, string>> Pins;
-	typedef unordered_map<string, Pins> Parts;
-	typedef tuple<string, string, string> Node;
-	typedef unordered_map<string, vector<Node>> Nets;
-	typedef pair<pair<string, string>, pair<string, string>> Connection;
-
-	
 
 	Parts parts;
 	Components components;
