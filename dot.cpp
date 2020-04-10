@@ -1,4 +1,5 @@
 #include "dot.h"
+#include <sstream>
 
 string dotGraph(Components components, vector<Connection> connections)
 {
