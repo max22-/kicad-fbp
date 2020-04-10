@@ -1,6 +1,4 @@
 #include <iostream>
-
-
 #include "parser.h"
 
 
@@ -8,7 +6,7 @@ using namespace std;
 
 int main(int argc, char *argv[]) {
 	if(argc != 2) {
-		std::cerr << "Usage : kicad-fbp file.xml" << std::endl;
+		cerr << "Usage : kicad-fbp file.xml" << endl;
 		return EXIT_FAILURE;
 	}
 
