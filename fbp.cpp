@@ -9,9 +9,8 @@ string fbpDSL(Components components, vector<Connection> connections)
         ss << component.first << "(" << component.second.part << ")," << endl;
 
     for(auto connection: connections) {
-        if(components[connection.outputComponent].part == "IIP") {
+        if(components[connection.outputComponent].part == "IIP")
             ss << '\'' << components[connection.outputComponent].value << "\' -> " << connection.inputPin << " " << connection.inputComponent << "," << endl;
-        }
         else
             ss << connection.outputComponent << " " << connection.outputPin << " -> " << connection.inputPin << " " << connection.inputComponent << "," << endl;
     }
