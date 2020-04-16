@@ -17,8 +17,8 @@ pair<Components, Connections> parse(const char* fileName)
 
 	XMLElement* xmlParts = doc.FirstChildElement()->FirstChildElement("libparts");
 	for(XMLElement* xmlPart = xmlParts->FirstChildElement("libpart"); xmlPart != nullptr; xmlPart = xmlPart->NextSiblingElement()) {
-		string partName = xmlPart->Attribute("part");
-		Pins pins;
+		Part part;
+		part.name = xmlPart->Attribute("part");
 		XMLElement* xmlPins = xmlPart->FirstChildElement("pins");
 		for(XMLElement* xmlPin = xmlPins->FirstChildElement("pin"); xmlPin != nullptr; xmlPin = xmlPin->NextSiblingElement()) {
 			Pin pin;
@@ -26,12 +26,12 @@ pair<Components, Connections> parse(const char* fileName)
 			pin.name = xmlPin->Attribute("name");
 			pin.type = xmlPin->Attribute("type");
 			if(pin.type != "input" && pin.type != "output") {
-				cerr << "Unsupported pin type \"" << pin.type << "\" in part " << partName << endl;
+				cerr << "Unsupported pin type \"" << pin.type << "\" in part " << part.name << endl;
 				exit(EXIT_FAILURE);
 			}
-			pins[pinNumber] = pin;
+			part.pins[pinNumber] = pin;
 		}
-		parts.insert(Part{.name = partName, .pins = pins});
+		parts.insert(part);
 	}
 	
 	XMLElement* xmlComponents = doc.FirstChildElement()->FirstChildElement("components");
