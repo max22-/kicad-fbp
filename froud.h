@@ -2,7 +2,8 @@
 #define FROUD_H
 
 #include "datastructure.h"
+#include <set>
 
-string froud(Components components, vector<Connection> connections);
+string froud(Components components, Connections connections);
 
 #endif

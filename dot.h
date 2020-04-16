@@ -3,6 +3,6 @@
 
 #include "datastructure.h"
 
-string dotGraph(Components components, vector<Connection> connections);
+string dotGraph(Components components, Connections connections);
 
 #endif

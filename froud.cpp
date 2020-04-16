@@ -1,14 +1,14 @@
 #include "froud.h"
 #include <sstream>
 
-string froud(Components components, vector<Connection> connections)
+string froud(Components components, Connections connections)
 {
     ostringstream ss;
     ss << "#include <froud.h>" << endl;
     ss << "// include processes header files here." << endl;
     ss << endl;
     for(auto component: components)
-        ss << component.second.part << " " << component.first << ";" << endl;
+        ss << component.part << " " << component.name << ";" << endl;
 
     ss << endl;
     ss << "Scheduler scheduler;" << endl;
@@ -17,11 +17,11 @@ string froud(Components components, vector<Connection> connections)
 
 
     for(auto connection: connections) {
-        if(components[connection.outputComponent].part == "IIP")
-            ss << "    " << "initialize(" << components[connection.outputComponent].value;
+        if(connection.outputComponent->part->name == "IIP")
+            ss << "    " << "initialize(" << connection.outputComponent->value;
         else
-            ss << "    " << "connect(" << connection.outputComponent << connection.outputPin;
-        ss <<  ", " << connection.inputComponent << "." << connection.inputPin << ");" << endl;
+            ss << "    " << "connect(" << connection.outputComponent->name << connection.outputPin->name;
+        ss <<  ", " << connection.inputComponent->name << "." << connection.inputPin->name << ");" << endl;
     }
     
     ss << endl;

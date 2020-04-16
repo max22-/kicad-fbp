@@ -3,6 +3,6 @@
 
 #include "datastructure.h"
 
-string fbpDSL(Components components, vector<Connection> connections);
+string fbpDSL(Components components, Connections connections);
 
 #endif

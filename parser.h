@@ -6,7 +6,7 @@
 
 using namespace tinyxml2;
 
-pair<Components, vector<Connection>> parse(const char* fileName);
+pair<Components, Connections> parse(const char* fileName);
 
 
 #endif
