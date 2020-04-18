@@ -1,13 +1,16 @@
 all: kicad-fbp
 
-kicad-fbp: ./tinyxml2/libtinyxml2.a main.o parser.o dot.o fbp.o froud.o
-	g++ main.o parser.o dot.o fbp.o froud.o ./tinyxml2/libtinyxml2.a -o kicad-fbp
+kicad-fbp: ./tinyxml2/libtinyxml2.a main.o datastructure.o parser.o dot.o fbp.o froud.o 
+	g++ main.o datastructure.o parser.o dot.o fbp.o froud.o  ./tinyxml2/libtinyxml2.a -o kicad-fbp
 
 main.o: main.cpp datastructure.h parser.h dot.h fbp.h froud.h
 	g++ main.cpp -c -o main.o -std=c++17
 
 parser.o: parser.cpp parser.h
-	g++ parser.cpp -c -o parser.o
+	g++ parser.cpp -c -o parser.o -std=c++17
+
+datastructure.o: datastructure.cpp datastructure.h
+	g++ datastructure.cpp -c -o datastructure.o
 
 dot.o: dot.cpp dot.h
 	g++ dot.cpp -c -o dot.o
@@ -17,6 +20,7 @@ fbp.o: fbp.cpp fbp.h
 
 froud.o: froud.cpp froud.h
 	g++ froud.cpp -c -o froud.o
+
 
 ./tinyxml2/libtinyxml2.a: 
 	git clone https://github.com/leethomason/tinyxml2

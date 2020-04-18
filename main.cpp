@@ -13,7 +13,10 @@ int main(int argc, char *argv[]) {
 		return EXIT_FAILURE;
 	}
 
+	cout << "parse" << endl;
 	auto [components, connections] = parse(argv[1]);
+
+	cout << "froud" << endl;
 
 	//cout << dotGraph(components, connections);
 	//cout << fbpDSL(components, connections);

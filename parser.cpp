@@ -1,9 +1,10 @@
 #include "parser.h"
 #include <iostream>
 #include <algorithm>
+#include <optional>
 
-const Part* findPart(Parts parts, string name);
-const Component* findComponent(Components components, string name); 
+const Part& findPart(Parts parts, string name);
+const Component& findComponent(Components components, string name); 
 
 pair<Components, Connections> parse(const char* fileName)
 {
@@ -19,6 +20,7 @@ pair<Components, Connections> parse(const char* fileName)
 	for(XMLElement* xmlPart = xmlParts->FirstChildElement("libpart"); xmlPart != nullptr; xmlPart = xmlPart->NextSiblingElement()) {
 		Part part;
 		part.name = xmlPart->Attribute("part");
+		cout << "****" << endl;
 		XMLElement* xmlPins = xmlPart->FirstChildElement("pins");
 		for(XMLElement* xmlPin = xmlPins->FirstChildElement("pin"); xmlPin != nullptr; xmlPin = xmlPin->NextSiblingElement()) {
 			Pin pin;
@@ -29,39 +31,53 @@ pair<Components, Connections> parse(const char* fileName)
 				cerr << "Unsupported pin type \"" << pin.type << "\" in part " << part.name << endl;
 				exit(EXIT_FAILURE);
 			}
+			cout << "Inserting pin " << pinNumber << pin << endl;
 			part.pins[pinNumber] = pin;
 		}
+		cout << "Inserting part " << part << endl;
 		parts.insert(part);
+		cout << endl;;
 	}
 	
 	XMLElement* xmlComponents = doc.FirstChildElement()->FirstChildElement("components");
 	for(XMLElement* xmlComponent = xmlComponents->FirstChildElement("comp"); xmlComponent != nullptr; xmlComponent = xmlComponent->NextSiblingElement()) {
-		Component component;
-		component.name = xmlComponent->Attribute("ref");
+		string componentName = xmlComponent->Attribute("ref");
 		string partName = xmlComponent->FirstChildElement("libsource")->Attribute("part");
-		component.part = findPart(parts, partName);
-		if(component.part == nullptr) {
+		cout << "findParts(parts, \"" << partName << "\") = ";
+		try {
+			const Part& componentPart = findPart(parts, partName);
+			string componentValue = xmlComponent->FirstChildElement("value")->GetText();
+			Component component(componentName, componentPart, componentValue);
+			components.insert(component);
+		}
+		catch(const runtime_error& re) {
 			cerr << "Part \"" << partName << "\" not found when creating component set.";
 			exit(EXIT_FAILURE);
 		}
-		component.value = xmlComponent->FirstChildElement("value")->GetText();
-		components.insert(component);
 	}
+
+	cout << "*****" << endl;
+	cout << parts << endl;
+
+	cout << "*****" << endl;
+	cout << components << endl;
 
 	XMLElement* xmlNets = doc.FirstChildElement()->FirstChildElement("nets");
 	for(XMLElement* xmlNet = xmlNets->FirstChildElement("net"); xmlNet != nullptr; xmlNet = xmlNet->NextSiblingElement()) {
 		string netName = xmlNet->Attribute("name");
 		Nodes nodes;
 		for(XMLElement* xmlNode = xmlNet->FirstChildElement("node"); xmlNode != nullptr; xmlNode = xmlNode->NextSiblingElement()) {
-			Node node;
 			string componentName = xmlNode->Attribute("ref");
-			node.component = findComponent(components, componentName);
-			if(node.component == nullptr) {
+			int pinNumber = xmlNode->IntAttribute("pin");
+			try {
+				const Component& component = findComponent(components, componentName);
+				Node node(component, pinNumber);
+				nodes.insert(node);
+			}
+			catch(const runtime_error& re) {
 				cerr << "Component \"" << componentName << "\" not found when creating component set.";
 				exit(EXIT_FAILURE);
 			}
-			node.pinNumber = xmlNode->IntAttribute("pin");
-			nodes.insert(node);
 		}
 		Net net;
 		net.name = netName;
@@ -72,7 +88,8 @@ pair<Components, Connections> parse(const char* fileName)
 	for(auto net: nets) {
 		vector<Node> inputs, outputs;
 		for(auto node: net.nodes) {
-			string pinType = node.component->part->pins.at(node.pinNumber).type;
+			cout << "1 - " << node.component.name <<  " " << node.pinNumber << endl;
+			string pinType = node.component.part.pins.at(node.pinNumber).type;
 			if(pinType == "input")
 				inputs.push_back(node);
 			else if(pinType == "output")
@@ -91,33 +108,35 @@ pair<Components, Connections> parse(const char* fileName)
 			continue;
 		}
 		for(auto node: outputs) {
-			Connection connection;
-			connection.outputComponent = node.component;
-			connection.outputPin = &connection.outputComponent->part->pins.at(node.pinNumber);
-			connection.inputComponent = inputs[0].component;
-			connection.inputPin = &connection.inputComponent->part->pins.at(inputs[0].pinNumber);
+			const Component& outputComponent = node.component;
+			cout << "2 - " << node.pinNumber << endl;
+			const Pin& outputPin = outputComponent.part.pins.at(node.pinNumber);
+			const Component& inputComponent = inputs[0].component;
+			cout << "3 - " << inputs[0].pinNumber << endl;
+			const Pin& inputPin = inputComponent.part.pins.at(inputs[0].pinNumber);
+			Connection connection(outputComponent, outputPin, inputComponent, inputPin);
 			connections.insert(connection);
 		}
 	}
     return make_pair(components, connections);
 }
 
-const Part* findPart(Parts parts, string name) 
+const Part& findPart(Parts parts, string name) 
 {
 	Parts::iterator partsItr = find_if(parts.begin(), parts.end(), [name](Part p) {
 		return p.name == name;
 	});
 	if(partsItr == parts.end())
-		return nullptr;
-	return &(*partsItr);
+		throw runtime_error("Component not found.");
+	return *partsItr;
 }
 
-const Component* findComponent(Components components, string name)
+const Component& findComponent(Components components, string name)
 {
 	Components::iterator componentsItr = find_if(components.begin(), components.end(), [name](Component c) {
 		return c.name == name;
 	});
 	if(componentsItr == components.end())
-		return nullptr;
-	return &(*componentsItr);
+		throw runtime_error("Component not found.");
+	return *componentsItr;
 }

@@ -10,11 +10,11 @@ string fbpDSL(Components components, Connections connections)
         ss << component.name << "(" << component.part << ")," << endl;
 
     for(auto connection: connections) {
-        if(connection.outputComponent->part->name == "IIP")
-            ss << '\'' << connection.outputComponent->value << "\'";
+        if(connection.outputComponent.part.name == "IIP")
+            ss << '\'' << connection.outputComponent.value << "\'";
         else
-            ss << connection.outputComponent->name << " " << connection.outputPin->name;
-        ss <<  " -> " << connection.inputPin->name << " " << connection.inputComponent->name << "," << endl;
+            ss << connection.outputComponent.name << " " << connection.outputPin.name;
+        ss <<  " -> " << connection.inputPin.name << " " << connection.inputComponent.name << "," << endl;
     }
 
     return ss.str();
