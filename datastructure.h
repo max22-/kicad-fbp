@@ -18,10 +18,7 @@ struct Pin {
     }
 };
 
-ostream& operator<<(ostream& os, const Pin& pin);
-
 typedef map<int, Pin> Pins;
-ostream& operator<<(ostream& os, const Pins& pins);
 
 struct Part {
     string name;
@@ -33,8 +30,6 @@ struct Part {
     }
 };
 
-ostream& operator<<(ostream& os, const Part& part);
-
 struct PartHasher
 {
   size_t
@@ -45,8 +40,6 @@ struct PartHasher
 };
 
 typedef unordered_set<Part*, PartHasher> Parts;
-ostream& operator<<(ostream& os, const Parts& parts);
-
 
 struct Component {
     Component(const string name, const Part* part, const string value) : name(name), part(part), value(value) {}
@@ -60,7 +53,7 @@ struct Component {
     }
 };
 
-ostream& operator<<(ostream& os, const Component& component);
+
 
 struct ComponentHasher
 {
@@ -86,7 +79,7 @@ struct Node {
     }
 };
 
-ostream& operator<<(ostream& os, const Components& components);
+
 
 struct NodeHasher
 {
@@ -152,5 +145,15 @@ struct ConnectionHasher
 };
 
 typedef unordered_set<Connection, ConnectionHasher> Connections;
+
+// *****************************
+// only for debugging purposes :
+ostream& operator<<(ostream& os, const Pin& pin);
+ostream& operator<<(ostream& os, const Pins& pins);
+ostream& operator<<(ostream& os, const Part& part);
+ostream& operator<<(ostream& os, const Parts& parts);
+ostream& operator<<(ostream& os, const Component& component);
+ostream& operator<<(ostream& os, const Components& components);
+
 
 #endif
