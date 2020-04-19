@@ -113,7 +113,7 @@ const Part* findPart(Parts parts, string name)
 		return p->name == name;
 	});
 	if(partsItr == parts.end())
-		throw runtime_error("Component not found.");
+		throw runtime_error("Part not found.");
 	return *partsItr;
 }
 
