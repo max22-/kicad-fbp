@@ -1,31 +1,35 @@
+CFLAGS=-ggdb
+LDFLAGS=
+
 all: kicad-fbp
 
 kicad-fbp: ./tinyxml2/libtinyxml2.a main.o datastructure.o parser.o dot.o fbp.o froud.o 
-	g++ main.o datastructure.o parser.o dot.o fbp.o froud.o  ./tinyxml2/libtinyxml2.a -o kicad-fbp
+	g++ main.o datastructure.o parser.o dot.o fbp.o froud.o  ./tinyxml2/libtinyxml2.a -o kicad-fbp $(LDFLAGS)
 
 main.o: main.cpp datastructure.h parser.h dot.h fbp.h froud.h
-	g++ main.cpp -c -o main.o -std=c++17
+	g++ main.cpp -c -o main.o -std=c++17 $(CFLAGS)
 
 parser.o: parser.cpp parser.h
-	g++ parser.cpp -c -o parser.o -std=c++17
+	g++ parser.cpp -c -o parser.o -std=c++17 $(CFLAGS)
 
 datastructure.o: datastructure.cpp datastructure.h
-	g++ datastructure.cpp -c -o datastructure.o
+	g++ datastructure.cpp -c -o datastructure.o $(CFLAGS)
 
 dot.o: dot.cpp dot.h
-	g++ dot.cpp -c -o dot.o
+	g++ dot.cpp -c -o dot.o $(CFLAGS)
 
 fbp.o: fbp.cpp fbp.h
-	g++ fbp.cpp -c -o fbp.o
+	g++ fbp.cpp -c -o fbp.o  $(CFLAGS)
 
 froud.o: froud.cpp froud.h
-	g++ froud.cpp -c -o froud.o
+	g++ froud.cpp -c -o froud.o $(CFLAGS)
 
 
 ./tinyxml2/libtinyxml2.a: 
 	git clone https://github.com/leethomason/tinyxml2
 	make -C tinyxml2
 
+.PHONY: clean
 clean:
 	rm -f *.o
 	rm -f kicad-fbp
