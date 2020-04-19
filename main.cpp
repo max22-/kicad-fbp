@@ -15,8 +15,6 @@ int main(int argc, char *argv[]) {
 
 	auto [components, connections] = parse(argv[1]);
 
-	cout << "froud" << endl;
-
 	//cout << dotGraph(components, connections);
 	//cout << fbpDSL(components, connections);
 	cout << froud(components, connections);
