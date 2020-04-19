@@ -38,20 +38,20 @@ ostream& operator<<(ostream& os, const Part& part);
 struct PartHasher
 {
   size_t
-  operator()(const Part& part) const
+  operator()(const Part* part) const
   {
-    return std::hash<std::string>()(part.name);
+    return std::hash<std::string>()(part->name);
   }
 };
 
-typedef unordered_set<Part, PartHasher> Parts;
+typedef unordered_set<Part*, PartHasher> Parts;
 ostream& operator<<(ostream& os, const Parts& parts);
 
 
 struct Component {
-    Component(const string name, const Part& part, const string value) : name(name), part(part), value(value) {}
+    Component(const string name, const Part* part, const string value) : name(name), part(part), value(value) {}
     const string name;
-    const Part& part;
+    const Part* part;
     const string value;
 
     bool operator==(const Component& other) const
@@ -65,24 +65,24 @@ ostream& operator<<(ostream& os, const Component& component);
 struct ComponentHasher
 {
   size_t
-  operator()(const Component& component) const
+  operator()(const Component* component) const
   {
-    return std::hash<std::string>()(component.name);
+    return std::hash<std::string>()(component->name);
   }
 };
 
-typedef unordered_set<Component, ComponentHasher> Components;
+typedef unordered_set<Component*, ComponentHasher> Components;
 
 
 
 struct Node {
-    Node(const Component& component, const int pinNumber) : component(component), pinNumber(pinNumber) {}
-    const Component& component;
+    Node(const Component* component, const int pinNumber) : component(component), pinNumber(pinNumber) {}
+    const Component* component;
     const int pinNumber;
 
     bool operator==(const Node& other) const
     {
-        return component == other.component && pinNumber == other.pinNumber;
+        return *component == *other.component && pinNumber == other.pinNumber;
     }
 };
 
@@ -93,7 +93,7 @@ struct NodeHasher
   size_t
   operator()(const Node& node) const
   {
-    return std::hash<std::string>()(node.component.name + "." + to_string(node.pinNumber));
+    return std::hash<std::string>()(node.component->name + "." + to_string(node.pinNumber));
   }
 };
 
@@ -121,16 +121,16 @@ struct NetHasher
 typedef unordered_set<Net, NetHasher> Nets;
 
 struct Connection {
-    Connection(const Component& outputComponent, const Pin& outputPin, const Component& inputComponent, const Pin& input) : outputComponent(outputComponent), outputPin(outputPin), inputComponent(inputComponent), inputPin(inputPin) {}
-    const Component &outputComponent, &inputComponent;
-    const Pin &outputPin, &inputPin;
+    Connection(const Component* outputComponent, const Pin* outputPin, const Component* inputComponent, const Pin* inputPin) : outputComponent(outputComponent), outputPin(outputPin), inputComponent(inputComponent), inputPin(inputPin) {}
+    const Component *outputComponent, *inputComponent;
+    const Pin *outputPin, *inputPin;
 
     bool operator==(const Connection& other) const
     {
-        return outputComponent == other.outputComponent
-            && outputPin == other.outputPin
-            && inputComponent == other.inputComponent
-            && inputPin == other.inputPin;
+        return *outputComponent == *other.outputComponent
+            && *outputPin == *other.outputPin
+            && *inputComponent == *other.inputComponent
+            && *inputPin == *other.inputPin;
     }
 };
 
@@ -140,13 +140,13 @@ struct ConnectionHasher
   operator()(const Connection& connection) const
   {
     return std::hash<std::string>()(
-        connection.outputComponent.name
+        connection.outputComponent->name
         + "."
-        + connection.outputPin.name
+        + connection.outputPin->name
         + "->"
-        + connection.inputComponent.name
+        + connection.inputComponent->name
         + "."
-        + connection.inputPin.name
+        + connection.inputPin->name
     );
   }
 };

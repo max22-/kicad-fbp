@@ -32,7 +32,7 @@ ostream& operator<<(ostream& os, const Parts& parts)
 {
     os << "Parts {" << endl;
     for(auto part: parts) {
-        os << part << endl;
+        os << *part << endl;
     }
     os << "}";
     return os;
@@ -42,7 +42,7 @@ ostream& operator<<(ostream& os, const Component& component)
 {
     os << "Component {" << endl;
     os << ".name = \"" << component.name << "\"," << endl;
-    os << ".part = " << component.part << endl;
+    os << ".part = " << *component.part << endl;
     os << ".value = " << component.value << endl;
     os << "}";
     return os;
@@ -52,7 +52,7 @@ ostream& operator<<(ostream& os, const Components& components)
 {
     os << "Components {" << endl;
     for(auto component: components) {
-        os << component << endl;
+        os << *component << endl;
     }
     os << "}";
     return os;

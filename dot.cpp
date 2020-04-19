@@ -9,13 +9,13 @@ string dotGraph(Components components, Connections connections)
     ss << "\trankdir=LR;" << endl << endl;
 
     for(auto connection: connections) {
-        if(connection.outputComponent.part.name == "IIP")
-            ss << connection.outputComponent.name << " [label=\"" << connection.outputComponent.value << "\"];" << endl;
+        if(connection.outputComponent->part->name == "IIP")
+            ss << connection.outputComponent->name << " [label=\"" << connection.outputComponent->value << "\"];" << endl;
     }
 
     for(auto connection: connections) {
-        ss << "\t" << connection.outputComponent.name << " -> " << connection.inputComponent.name;
-        ss << "[taillabel=\"" << connection.outputPin.name << "\", headlabel=\"" << connection.inputPin.name << "\"]";
+        ss << "\t" << connection.outputComponent->name << " -> " << connection.inputComponent->name;
+        ss << "[taillabel=\"" << connection.outputPin->name << "\", headlabel=\"" << connection.inputPin->name << "\"]";
         ss << ";" << endl;
     }
 

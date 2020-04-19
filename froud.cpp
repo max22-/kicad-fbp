@@ -8,7 +8,7 @@ string froud(Components components, Connections connections)
     ss << "// include processes header files here." << endl;
     ss << endl;
     for(auto component: components)
-        ss << component.part << " " << component.name << ";" << endl;
+        ss << component->part->name << " " << component->name << ";" << endl;
 
     ss << endl;
     ss << "Scheduler scheduler;" << endl;
@@ -17,11 +17,11 @@ string froud(Components components, Connections connections)
 
 
     for(auto connection: connections) {
-        if(connection.outputComponent.part.name == "IIP")
-            ss << "    " << "initialize(" << connection.outputComponent.value;
+        if(connection.outputComponent->part->name == "IIP")
+            ss << "    " << "initialize(" << connection.outputComponent->value;
         else
-            ss << "    " << "connect(" << connection.outputComponent.name << connection.outputPin.name;
-        ss <<  ", " << connection.inputComponent.name << "." << connection.inputPin.name << ");" << endl;
+            ss << "    " << "connect(" << connection.outputComponent->name << connection.outputPin->name;
+        ss <<  ", " << connection.inputComponent->name << "." << connection.inputPin->name << ");" << endl;
     }
     
     ss << endl;
