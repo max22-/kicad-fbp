@@ -1,4 +1,4 @@
-CFLAGS=-ggdb
+CFLAGS=-std=c++17 -ggdb
 LDFLAGS=
 
 all: kicad-fbp
@@ -7,10 +7,10 @@ kicad-fbp: ./tinyxml2/libtinyxml2.a main.o datastructure.o parser.o dot.o fbp.o 
 	g++ main.o datastructure.o parser.o dot.o fbp.o froud.o  ./tinyxml2/libtinyxml2.a -o kicad-fbp $(LDFLAGS)
 
 main.o: main.cpp datastructure.h parser.h dot.h fbp.h froud.h
-	g++ main.cpp -c -o main.o -std=c++17 $(CFLAGS)
+	g++ main.cpp -c -o main.o $(CFLAGS)
 
 parser.o: parser.cpp parser.h
-	g++ parser.cpp -c -o parser.o -std=c++17 $(CFLAGS)
+	g++ parser.cpp -c -o parser.o $(CFLAGS)
 
 datastructure.o: datastructure.cpp datastructure.h
 	g++ datastructure.cpp -c -o datastructure.o $(CFLAGS)
