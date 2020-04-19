@@ -20,7 +20,6 @@ pair<Components, Connections> parse(const char* fileName)
 	for(XMLElement* xmlPart = xmlParts->FirstChildElement("libpart"); xmlPart != nullptr; xmlPart = xmlPart->NextSiblingElement()) {
 		Part *part = new Part();
 		part->name = xmlPart->Attribute("part");
-		cout << "****" << endl;
 		XMLElement* xmlPins = xmlPart->FirstChildElement("pins");
 		for(XMLElement* xmlPin = xmlPins->FirstChildElement("pin"); xmlPin != nullptr; xmlPin = xmlPin->NextSiblingElement()) {
 			Pin pin;
@@ -31,19 +30,15 @@ pair<Components, Connections> parse(const char* fileName)
 				cerr << "Unsupported pin type \"" << pin.type << "\" in part " << part->name << endl;
 				exit(EXIT_FAILURE);
 			}
-			cout << "Inserting pin " << pinNumber << pin << endl;
 			part->pins[pinNumber] = pin;
 		}
-		cout << "Inserting part " << part << endl;
 		parts.insert(part);
-		cout << endl;;
 	}
 	
 	XMLElement* xmlComponents = doc.FirstChildElement()->FirstChildElement("components");
 	for(XMLElement* xmlComponent = xmlComponents->FirstChildElement("comp"); xmlComponent != nullptr; xmlComponent = xmlComponent->NextSiblingElement()) {
 		string componentName = xmlComponent->Attribute("ref");
 		string partName = xmlComponent->FirstChildElement("libsource")->Attribute("part");
-		cout << "findParts(parts, \"" << partName << "\") = ";
 		try {
 			const Part* componentPart = findPart(parts, partName);
 			string componentValue = xmlComponent->FirstChildElement("value")->GetText();
@@ -55,12 +50,6 @@ pair<Components, Connections> parse(const char* fileName)
 			exit(EXIT_FAILURE);
 		}
 	}
-
-	cout << "*****" << endl;
-	cout << parts << endl;
-
-	cout << "*****" << endl;
-	cout << components << endl;
 
 	XMLElement* xmlNets = doc.FirstChildElement()->FirstChildElement("nets");
 	for(XMLElement* xmlNet = xmlNets->FirstChildElement("net"); xmlNet != nullptr; xmlNet = xmlNet->NextSiblingElement()) {
@@ -88,7 +77,6 @@ pair<Components, Connections> parse(const char* fileName)
 	for(auto net: nets) {
 		vector<Node> inputs, outputs;
 		for(auto node: net.nodes) {
-			cout << "1 - " << node.component->name <<  " " << node.pinNumber << endl;
 			string pinType = node.component->part->pins.at(node.pinNumber).type;
 			if(pinType == "input")
 				inputs.push_back(node);
@@ -109,10 +97,8 @@ pair<Components, Connections> parse(const char* fileName)
 		}
 		for(auto node: outputs) {
 			const Component* outputComponent = node.component;
-			cout << "2 - " << node.pinNumber << endl;
 			const Pin* outputPin = &outputComponent->part->pins.at(node.pinNumber);
 			const Component* inputComponent = inputs[0].component;
-			cout << "3 - " << inputs[0].pinNumber << endl;
 			const Pin* inputPin = &inputComponent->part->pins.at(inputs[0].pinNumber);
 			Connection connection(outputComponent, outputPin, inputComponent, inputPin);
 			connections.insert(connection);
