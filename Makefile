@@ -33,6 +33,7 @@ froud.o: froud.cpp froud.h datastructure.h
 clean:
 	rm -f *.o
 	rm -f kicad-fbp
+	make -C examples clean
 
-run: all
-	./kicad-fbp schematic.xml
+examples: all
+	make -C examples

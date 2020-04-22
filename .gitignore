@@ -5,3 +5,6 @@ settings.json
 *.png
 *.dot
 *.xml
+examples/*.cpp
+examples/*.dot
+examples/*.fbp

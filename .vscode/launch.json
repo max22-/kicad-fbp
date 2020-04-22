@@ -9,7 +9,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/kicad-fbp",
-            "args": ["schematic.xml"],
+            "args": ["examples/example1.xml"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],
