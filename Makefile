@@ -1,6 +1,8 @@
 CFLAGS=-std=c++17 -ggdb
 LDFLAGS=
 
+.PHONY: clean install uninstall
+
 all: kicad-fbp
 
 kicad-fbp: ./tinyxml2/libtinyxml2.a main.o datastructure.o parser.o dot.o fbp.o froud.o 
@@ -29,7 +31,6 @@ froud.o: froud.cpp froud.h datastructure.h
 	git clone https://github.com/leethomason/tinyxml2
 	make -C tinyxml2
 
-.PHONY: clean
 clean:
 	rm -f *.o
 	rm -f kicad-fbp
@@ -37,3 +38,9 @@ clean:
 
 examples: all
 	make -C examples
+
+install: all
+	install kicad-fbp /usr/local/bin
+
+uninstall:
+	rm -f /usr/local/bin/kicad-fbp
